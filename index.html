@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Attendance Management System — AIML-A</title>
+  <style>
+    :root {
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      --bg-gradient: radial-gradient(circle at 10% 20%, #e0c3fc 0%, #8ec5fc 100%);
+      --orb1-color: #fa709a;
+      --orb2-color: #4facfe;
+      --glass-bg: rgba(255, 255, 255, 0.45);
+      --glass-card: rgba(255, 255, 255, 0.58);
+      --glass-border: rgba(255, 255, 255, 0.65);
+      --glass-specular: rgba(255, 255, 255, 0.95);
+      --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --input-bg: rgba(255, 255, 255, 0.65);
+      --row-bg: rgba(255, 255, 255, 0.65);
+      --row-hover: rgba(255, 255, 255, 0.88);
+      --segmented-bg: rgba(0, 0, 0, 0.06);
+      --accent-blue: #0071e3;
+      --accent-green: #34c759;
+      --accent-red: #ff3b30;
+      --accent-od: #ff9500;
+      --blur-val: 32px;
+    }
+
+    [data-theme="dark"] {
+      --bg-gradient: radial-gradient(circle at 15% 15%, #151828 0%, #050508 100%);
+      --orb1-color: #3b2d54;
+      --orb2-color: #123d63;
+      --glass-bg: rgba(20, 20, 25, 0.62);
+      --glass-card: rgba(30, 30, 36, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-specular: rgba(255, 255, 255, 0.22);
+      --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(255, 255, 255, 0.05);
+      --text-primary: #f5f5f7;
+      --text-secondary: #a1a1a6;
+      --input-bg: rgba(45, 45, 52, 0.65);
+      --row-bg: rgba(38, 38, 46, 0.6);
+      --row-hover: rgba(50, 50, 60, 0.85);
+      --segmented-bg: rgba(255, 255, 255, 0.08);
+      --accent-blue: #2997ff;
+      --accent-green: #30d158;
+      --accent-red: #ff453a;
+      --accent-od: #ff9f0a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-stack);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+      color: var(--text-primary);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      z-index: 0;
+      opacity: 0.65;
+      animation: float 20s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    .orb-1 { width: 480px; height: 480px; background: var(--orb1-color); top: -120px; left: -100px; }
+    .orb-2 { width: 520px; height: 520px; background: var(--orb2-color); bottom: -150px; right: -100px; animation-duration: 24s; }
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 50px) scale(1.12); }
+    }
+
+    .liquid-panel {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1160px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur-val)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--blur-val)) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-top: 1.5px solid var(--glass-specular);
+      border-radius: 28px;
+      box-shadow: var(--glass-shadow);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin-bottom: 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 20px;
+    }
+    .brand-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    .brand-sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-pills {
+      display: flex;
+      background: var(--segmented-bg);
+      border-radius: 999px;
+      padding: 4px;
+      border: 1px solid var(--glass-border);
+    }
+    .nav-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .nav-btn.active {
+      background: rgba(255, 255, 255, 0.95);
+      color: #1d1d1f;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    [data-theme="dark"] .nav-btn.active {
+      background: rgba(255, 255, 255, 0.22);
+      color: #fff;
+    }
+
+    .icon-btn, .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--glass-border);
+      background: var(--segmented-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+    .btn-liquid {
+      background: linear-gradient(135deg, var(--accent-blue), #0056b3);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.28);
+    }
+    .btn-liquid:hover {
+      box-shadow: 0 6px 20px rgba(0, 113, 227, 0.42);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--segmented-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      box-shadow: none;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .glass-card {
+      background: var(--glass-card);
+      border-radius: 22px;
+      border: 1px solid var(--glass-border);
+      border-top: 1.5px solid var(--glass-specular);
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: flex-end;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-group label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+    .glass-input, .glass-select {
+      background: var(--input-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      outline: none;
+    }
+    .glass-input:focus, .glass-select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    /* Desktop View Table */
+    .desktop-table-container {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      max-height: 580px;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 6px;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      padding: 10px 14px;
+      text-align: left;
+      z-index: 2;
+    }
+    tbody tr {
+      background: var(--row-bg);
+      border-radius: 12px;
+    }
+    tbody tr:hover {
+      background: var(--row-hover);
+    }
+    td {
+      padding: 10px 14px;
+      font-size: 0.88rem;
+    }
+    td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+    td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+    /* Mobile Responsive Layout Cards */
+    .mobile-cards-container {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .student-mobile-card {
+      background: var(--row-bg);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .mobile-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Segmented Present/Absent/OD Toggle Controls */
+    .segmented-control {
+      display: inline-flex;
+      background: var(--segmented-bg);
+      padding: 3px;
+      border-radius: 10px;
+      gap: 2px;
+    }
+    .segmented-control button {
+      border: none;
+      background: transparent;
+      padding: 5px 11px;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .segmented-control button.status-p.active {
+      background: var(--accent-green);
+      color: #fff;
+    }
+    .segmented-control button.status-a.active {
+      background: var(--accent-red);
+      color: #fff;
+    }
+    .segmented-control button.status-od.active {
+      background: var(--accent-od);
+      color: #fff;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .badge-p { background: rgba(52, 199, 89, 0.15); color: var(--accent-green); }
+    .badge-a { background: rgba(255, 59, 48, 0.15); color: var(--accent-red); }
+    .badge-od { background: rgba(255, 149, 0, 0.15); color: var(--accent-od); }
+
+    .btn-remove {
+      background: rgba(255, 59, 48, 0.12);
+      border: 1px solid rgba(255, 59, 48, 0.22);
+      color: var(--accent-red);
+      padding: 4px 9px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-remove:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .metric-badge {
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      text-align: center;
+    }
+    .metric-badge span {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-badge strong {
+      font-size: 1.55rem;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .view-pane { display: none; }
+    .view-pane.active { display: block; }
+
+    /* Responsive Breakpoint: Desktop-to-Mobile Component Layout */
+    @media (max-width: 768px) {
+      body { padding: 12px 8px; }
+      .liquid-panel { padding: 20px; border-radius: 20px; gap: 16px; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .nav-pills { width: 100%; justify-content: space-around; order: 3; }
+      .desktop-table-container { display: none; }
+      .mobile-cards-container { display: flex; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="liquid-panel">
+    <header>
+      <div>
+        <h1 class="brand-title">AIML - A Attendance Register</h1>
+        <p class="brand-sub">Student Attendance Portal • Sri Eshwar College of Engineering</p>
+      </div>
+
+      <div class="header-actions">
+        <!-- Light / Dark Theme Switcher -->
+        <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme">
+          <span id="themeLabel">🌙 Dark Mode</span>
+        </button>
+
+        <!-- Role Indicator & Toggle -->
+        <div class="role-badge" id="roleBadge">
+          <span>Role: <strong id="currentRoleText">Teacher</strong></span>
+          <button style="border:none; background:none; color:var(--accent-blue); cursor:pointer; font-weight:600; margin-left:4px;" onclick="promptSwitchRole()">Switch</button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-pills">
+        <button class="nav-btn active" id="tabMarkBtn" onclick="switchView('mark')">Mark Attendance</button>
+        <button class="nav-btn" id="tabRegisterBtn" onclick="switchView('register')">Add Student</button>
+        <button class="nav-btn" id="tabReportBtn" onclick="switchView('report')">Reports & Export</button>
+      </nav>
+    </header>
+
+    <!-- 1. MARK ATTENDANCE VIEW -->
+    <section id="view-mark" class="view-pane active">
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Roll Call: AIML - A</div>
+            <p style="font-size:0.82rem; color:var(--text-secondary);" id="activeSessionDate"></p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span id="roleNotice" style="font-size: 0.8rem; font-weight:600; color: var(--accent-blue);"></span>
+            <button class="btn-liquid btn-secondary" onclick="exportToCSV()" title="Download Attendance as CSV">
+              📥 Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Desktop View Table -->
+        <div class="desktop-table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 60px;">S.No</th>
+                <th style="width: 80px;">Roll No</th>
+                <th>Register No</th>
+                <th>Student Name</th>
+                <th>Status</th>
+                <th class="teacher-only-col" style="width: 80px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceDesktopTbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Mobile View Cards -->
+        <div class="mobile-cards-container" id="attendanceMobileContainer"></div>
+
+        <div id="saveSessionContainer" style="margin-top: 18px; display: flex; justify-content: flex-end;">
+          <button class="btn-liquid" onclick="commitAttendanceSession()">Commit Session Records</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ADD STUDENT VIEW (Teacher Access Only) -->
+    <section id="view-register" class="view-pane">
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title">Enroll New Student into AIML - A</div>
+        </div>
+        <form id="addStudentForm" onsubmit="handleAddStudent(event)" class="form-grid">
+          <div class="field-group">
+            <label for="studentSno">S.No</label>
+            <input type="number" id="studentSno" class="glass-input" placeholder="e.g., 69" required />
+          </div>
+          <div class="field-group">
+            <label for="studentRoll">Roll No</label>
+            <input type="number" id="studentRoll" class="glass-input" placeholder="e.g., 69" required />
+          </div>
+          <div class="field-group">
+            <label for="studentReg">Register No</label>
+            <input type="text" id="studentReg" class="glass-input" placeholder="e.g., 26BEADMAM140" required />
+          </div>
+          <div class="field-group">
+            <label for="studentName">Student Name</label>
+            <input type="text" id="studentName" class="glass-input" placeholder="e.g., TARUN K" required />
+          </div>
+          <button type="submit" class="btn-liquid">Enroll Student</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. REPORTS & DOWNLOAD VIEW -->
+    <section id="view-report" class="view-pane">
+      <div class="metric-grid">
+        <div class="metric-badge">
+          <span>Total Students</span>
+          <strong id="metricTotalStudents">0</strong>
+        </div>
+        <div class="metric-badge">
+          <span>Average Attendance</span>
+          <strong id="metricAvgAttendance">0%</strong>
+        </div>
+        <div class="metric-badge">
+          <span>Committed Sessions</span>
+          <strong id="metricTotalSessions">0</strong>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Cumulative Attendance Register</div>
+            <p style="font-size:0.82rem; color:var(--text-secondary);">Download real-time or committed session records</p>
+          </div>
+          <button class="btn-liquid" onclick="exportToCSV()">
+            📥 Download CSV Report
+          </button>
+        </div>
+
+        <div class="desktop-table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Roll No</th>
+                <th>Register No</th>
+                <th>Name</th>
+                <th>Attended (P/OD)</th>
+                <th>Total Sessions</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody id="reportDesktopTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="mobile-cards-container" id="reportMobileContainer"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Complete dataset of all 68 students from AIML-A Class Register
+    const AIML_A_STUDENTS = [
+      { sno: 1, roll: 1, reg: "26BEADMAM002", name: "ABDUL GAFOOR M", initial: "P" },
+      { sno: 2, roll: 2, reg: "26BEADMAM001", name: "AHAMED AFZAL I", initial: "P" },
+      { sno: 3, roll: 3, reg: "26BEADMAM029", name: "AKARSHANA R", initial: "P" },
+      { sno: 4, roll: 4, reg: "26BEADMAM069", name: "AKASH K", initial: "P" },
+      { sno: 5, roll: 5, reg: "26BEADMAM025", name: "AKASHKUMAR T", initial: "P" },
+      { sno: 6, roll: 6, reg: "26BEADMAM046", name: "AKSHARA D", initial: "P" },
+      { sno: 7, roll: 7, reg: "26BEADMAM047", name: "AKSHARA M", initial: "P" },
+      { sno: 8, roll: 8, reg: "26BEADMAM101", name: "AKSHAYA G", initial: "P" },
+      { sno: 9, roll: 9, reg: "26BEADMAM079", name: "AKSHAYA S", initial: "P" },
+      { sno: 10, roll: 10, reg: "26BEADMAM027", name: "AKSHAYA U", initial: "P" },
+      { sno: 11, roll: 11, reg: "26BEADMAM063", name: "ANBARASU N", initial: "P" },
+      { sno: 12, roll: 12, reg: "26BEADMAM115", name: "ANICHA R", initial: "P" },
+      { sno: 13, roll: 13, reg: "26BEADMAM096", name: "ARULM興味UGAN M", name: "ARULM興味UGAN M" ? "ARULM興味UGAN M".replace("興味","UR") : "ARULMURUGAN M", initial: "P" },
+      { sno: 14, roll: 14, reg: "26BEADMAM028", name: "AVANTIKA S", initial: "A" },
+      { sno: 15, roll: 15, reg: "26BEADMAM124", name: "BARANIKA S N", initial: "P" },
+      { sno: 16, roll: 16, reg: "26BEADMAM004", name: "BAVANASRI S", initial: "P" },
+      { sno: 17, roll: 17, reg: "26BEADMAM080", name: "BHAGAVANTH S", initial: "P" },
+      { sno: 18, roll: 18, reg: "26BEADMAM003", name: "BHASVESH V", initial: "P" },
+      { sno: 19, roll: 19, reg: "26BEADMAM132", name: "BIRAJ PATEL", initial: "P" },
+      { sno: 20, roll: 20, reg: "26BEADMAM108", name: "DHANUSHIYA P", initial: "P" },
+      { sno: 21, roll: 21, reg: "26BEADMAM073", name: "DHARANEESH V", initial: "P" },
+      { sno: 22, roll: 22, reg: "26BEADMAM117", name: "DHARANI M", initial: "P" },
+      { sno: 23, roll: 23, reg: "26BEADMAM103", name: "DHARSHAN A B", initial: "P" },
+      { sno: 24, roll: 24, reg: "26BEADMAM137", name: "DHANUSHRI T R", initial: "P" },
+      { sno: 25, roll: 25, reg: "26BEADMAM005", name: "DHIVESH S", initial: "P" },
+      { sno: 26, roll: 26, reg: "26BEADMAM033", name: "EKANTIKAA", initial: "P" },
+      { sno: 27, roll: 27, reg: "26BEADMAM136", name: "GHANSHYAM SAH", initial: "P" },
+      { sno: 28, roll: 28, reg: "26BEADMAM098", name: "GIRIJA SHREE M", initial: "P" },
+      { sno: 29, roll: 29, reg: "26BEADMAM008", name: "GOPI KRISHNAN M", initial: "P" },
+      { sno: 30, roll: 30, reg: "26BEADMAM045", name: "GOWTHAM S", initial: "P" },
+      { sno: 31, roll: 31, reg: "26BEADMAM032", name: "GURUPRABHU V S", initial: "P" },
+      { sno: 32, roll: 32, reg: "26BEADMAM077", name: "GURUPRASATH V", initial: "P" },
+      { sno: 33, roll: 33, reg: "26BEADMAM010", name: "HAASINNI J V", initial: "P" },
+      { sno: 34, roll: 34, reg: "26BEADMAM119", name: "HAMSA RITHANYA S", initial: "P" },
+      { sno: 35, roll: 35, reg: "26BEADMAM021", name: "HARI PRANAV K S", initial: "P" },
+      { sno: 36, roll: 36, reg: "26BEADMAM135", name: "HARINI A", initial: "P" },
+      { sno: 37, roll: 37, reg: "26BEADMAM009", name: "HARIPRASAD K C", initial: "P" },
+      { sno: 38, roll: 38, reg: "26BEADMAM106", name: "HARIS K", initial: "P" },
+      { sno: 39, roll: 39, reg: "26BEADMAM084", name: "HARSHIKA C", initial: "P" },
+      { sno: 40, roll: 40, reg: "26BEADMAM122", name: "HASINI K M", initial: "P" },
+      { sno: 41, roll: 41, reg: "26BEADMAM099", name: "HEMANTH KUMAR S", initial: "P" },
+      { sno: 42, roll: 42, reg: "26BEADMAM051", name: "HEMAVARSHINI P", initial: "P" },
+      { sno: 43, roll: 43, reg: "26BEADMAM072", name: "JAI SAI RAGAVENDRAN S", initial: "P" },
+      { sno: 44, roll: 44, reg: "26BEADMAM007", name: "JASHMITHASREE S", initial: "P" },
+      { sno: 45, roll: 45, reg: "26BEADMAM060", name: "JOTHIGA T G", initial: "P" },
+      { sno: 46, roll: 46, reg: "26BEADMAM082", name: "JOTHILAKSHMI K", initial: "P" },
+      { sno: 47, roll: 47, reg: "26BEADMAM113", name: "KAAMNA R", initial: "P" },
+      { sno: 48, roll: 48, reg: "26BEADMAM011", name: "KAJASRI S", initial: "A" },
+      { sno: 49, roll: 49, reg: "-", name: "KAMLESH KUMAR RAUT", initial: "P" },
+      { sno: 50, roll: 50, reg: "26BEADMAM048", name: "KANISHIK A", initial: "OD" },
+      { sno: 51, roll: 51, reg: "26BEADMAM085", name: "KARANCIN M", initial: "P" },
+      { sno: 52, roll: 52, reg: "26BEADMAM041", name: "KARNATI VENKATESH", initial: "P" },
+      { sno: 53, roll: 53, reg: "26BEADMAM053", name: "KARTHICK B", initial: "P" },
+      { sno: 54, roll: 54, reg: "26BEADMAM034", name: "KAVIYA K", initial: "P" },
+      { sno: 55, roll: 55, reg: "26BEADMAM090", name: "KAVYA M S", initial: "P" },
+      { sno: 56, roll: 56, reg: "26BEADMAM116", name: "KIRUBHAKARAN M", initial: "P" },
+      { sno: 57, roll: 57, reg: "26BEADMAM123", name: "LOGESHWARAN B", initial: "P" },
+      { sno: 58, roll: 58, reg: "26BEADMAM059", name: "LOGESHWARAN S", initial: "P" },
+      { sno: 59, roll: 59, reg: "26BEADMAM109", name: "MADHU NANDHIKA M", initial: "P" },
+      { sno: 60, roll: 60, reg: "26BEADMAM002", name: "MAHALAKSHMI M", initial: "P" },
+      { sno: 61, roll: 61, reg: "26BEADMAM012", name: "MIRUTHIKA S", initial: "P" },
+      { sno: 62, roll: 62, reg: "26BEADMAM118", name: "MOHAMMED SHAREEF S", initial: "P" },
+      { sno: 63, roll: 63, reg: "26BEADMAM100", name: "MOHAMMED SUHAIB S", initial: "P" },
+      { sno: 64, roll: 64, reg: "26BEADMAM057", name: "MONIKKA R S", initial: "P" },
+      { sno: 65, roll: 65, reg: "26BEADMAM121", name: "MUGUNTHAN R", initial: "P" },
+      { sno: 66, roll: 66, reg: "26BEADMAM129", name: "NAR BAHADUR SAUD", initial: "P" },
+      { sno: 67, roll: 67, reg: "26BEADMAM086", name: "NARESH M", initial: "P" },
+      { sno: 68, roll: 68, reg: "26BEADMAM095", name: "NAVEEN V", initial: "P" }
+    ];
+
+    let currentUserRole = localStorage.getItem('ams_role') || 'Teacher';
+    let currentTheme = localStorage.getItem('ams_theme') || 'light';
+    let students = JSON.parse(localStorage.getItem('ams_aiml_students')) || AIML_A_STUDENTS;
+    let historyRecords = JSON.parse(localStorage.getItem('ams_aiml_history')) || [];
+    let currentSessionMarks = {};
+
+    function init() {
+      applyTheme(currentTheme);
+
+      document.getElementById('activeSessionDate').textContent = new Date().toLocaleDateString('en-US', {
+        weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
+      });
+
+      // Initialize default session status from initial dataset
+      students.forEach(s => {
+        currentSessionMarks[s.roll] = s.initial || 'P';
+      });
+
+      syncRolePermissions();
+      renderAllViews();
+    }
+
+    function promptSwitchRole() {
+      currentUserRole = currentUserRole === 'Teacher' ? 'Student' : 'Teacher';
+      localStorage.setItem('ams_role', currentUserRole);
+      syncRolePermissions();
+      renderAllViews();
+    }
+
+    function syncRolePermissions() {
+      document.getElementById('currentRoleText').textContent = currentUserRole;
+      const isTeacher = currentUserRole === 'Teacher';
+
+      document.getElementById('tabRegisterBtn').style.display = isTeacher ? 'inline-block' : 'none';
+      document.getElementById('saveSessionContainer').style.display = isTeacher ? 'flex' : 'none';
+      document.getElementById('roleNotice').textContent = isTeacher 
+        ? 'Teacher Mode (Editing & Attendance Marking Enabled)' 
+        : 'Student Mode (Read-Only Access)';
+
+      document.querySelectorAll('.teacher-only-col').forEach(col => {
+        col.style.display = isTeacher ? '' : 'none';
+      });
+
+      if (!isTeacher && document.getElementById('view-register').classList.contains('active')) {
+        switchView('mark');
+      }
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      applyTheme(currentTheme);
+      localStorage.setItem('ams_theme', currentTheme);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeLabel').textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`view-${viewId}`).classList.add('active');
+      const activeBtn = document.getElementById(`tab${viewId.charAt(0).toUpperCase() + viewId.slice(1)}Btn`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (viewId === 'report') renderReports();
+    }
+
+    function renderMarkView() {
+      const isTeacher = currentUserRole === 'Teacher';
+      const desktopTbody = document.getElementById('attendanceDesktopTbody');
+      const mobileContainer = document.getElementById('attendanceMobileContainer');
+
+      desktopTbody.innerHTML = '';
+      mobileContainer.innerHTML = '';
+
+      students.forEach(student => {
+        const status = currentSessionMarks[student.roll] || 'P';
+
+        // Desktop Table Row
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${student.sno}</td>
+          <td><strong>${student.roll}</strong></td>
+          <td style="font-family: monospace;">${student.reg}</td>
+          <td><strong>${student.name}</strong></td>
+          <td>
+            ${isTeacher ? `
+              <div class="segmented-control">
+                <button class="status-p ${status === 'P' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'P')">P</button>
+                <button class="status-a ${status === 'A' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'A')">A</button>
+                <button class="status-od ${status === 'OD' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'OD')">OD</button>
+              </div>
+            ` : `
+              <span class="badge-status badge-${status.toLowerCase()}">${status}</span>
+            `}
+          </td>
+          ${isTeacher ? `
+            <td>
+              <button class="btn-remove" onclick="removeStudent(${student.roll})">Delete</button>
+            </td>
+          ` : ''}
+        `;
+        desktopTbody.appendChild(tr);
+
+        // Mobile Card
+        const card = document.createElement('div');
+        card.className = 'student-mobile-card';
+        card.innerHTML = `
+          <div class="mobile-card-row">
+            <div>
+              <strong>#${student.roll} - ${student.name}</strong>
+              <div style="font-size:0.78rem; color:var(--text-secondary); font-family:monospace;">${student.reg}</div>
+            </div>
+            ${isTeacher ? `<button class="btn-remove" onclick="removeStudent(${student.roll})">Delete</button>` : ''}
+          </div>
+          <div class="mobile-card-row">
+            <span style="font-size:0.8rem; color:var(--text-secondary);">Status:</span>
+            ${isTeacher ? `
+              <div class="segmented-control">
+                <button class="status-p ${status === 'P' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'P')">P</button>
+                <button class="status-a ${status === 'A' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'A')">A</button>
+                <button class="status-od ${status === 'OD' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'OD')">OD</button>
+              </div>
+            ` : `
+              <span class="badge-status badge-${status.toLowerCase()}">${status}</span>
+            `}
+          </div>
+        `;
+        mobileContainer.appendChild(card);
+      });
+    }
+
+    function setStudentStatus(roll, status) {
+      if (currentUserRole !== 'Teacher') return;
+      currentSessionMarks[roll] = status;
+      renderMarkView();
+    }
+
+    function handleAddStudent(e) {
+      e.preventDefault();
+      if (currentUserRole !== 'Teacher') return;
+
+      const sno = parseInt(document.getElementById('studentSno').value);
+      const roll = parseInt(document.getElementById('studentRoll').value);
+      const reg = document.getElementById('studentReg').value.trim();
+      const name = document.getElementById('studentName').value.trim().toUpperCase();
+
+      if (students.some(s => s.roll === roll)) {
+        alert('A student with this Roll Number is already registered.');
+        return;
+      }
+
+      const newStudent = { sno, roll, reg, name, initial: "P" };
+      students.push(newStudent);
+      currentSessionMarks[roll] = 'P';
+      localStorage.setItem('ams_aiml_students', JSON.stringify(students));
+
+      document.getElementById('addStudentForm').reset();
+      renderAllViews();
+      switchView('mark');
+      alert(`Student ${name} successfully enrolled.`);
+    }
+
+    function removeStudent(roll) {
+      if (currentUserRole !== 'Teacher') return;
+      if (!confirm(`Are you sure you want to remove Roll No ${roll}?`)) return;
+
+      students = students.filter(s => s.roll !== roll);
+      delete currentSessionMarks[roll];
+      localStorage.setItem('ams_aiml_students', JSON.stringify(students));
+      renderAllViews();
+    }
+
+    function commitAttendanceSession() {
+      if (currentUserRole !== 'Teacher') return;
+
+      const session = {
+        date: new Date().toISOString(),
+        marks: { ...currentSessionMarks }
+      };
+
+      historyRecords.push(session);
+      localStorage.setItem('ams_aiml_history', JSON.stringify(historyRecords));
+      alert('Attendance session successfully committed to local records.');
+      renderReports();
+    }
+
+    function renderReports() {
+      const totalSessions = historyRecords.length;
+      document.getElementById('metricTotalStudents').textContent = students.length;
+      document.getElementById('metricTotalSessions').textContent = totalSessions;
+
+      const reportDesktop = document.getElementById('reportDesktopTbody');
+      const reportMobile = document.getElementById('reportMobileContainer');
+      reportDesktop.innerHTML = '';
+      reportMobile.innerHTML = '';
+
+      if (totalSessions === 0) {
+        document.getElementById('metricAvgAttendance').textContent = 'N/A';
+        const emptyMsg = `<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 24px;">No committed sessions yet. Marking view contains current live attendance.</td></tr>`;
+        reportDesktop.innerHTML = emptyMsg;
+        reportMobile.innerHTML = `<div style="text-align:center; color:var(--text-secondary); padding:20px;">No committed sessions yet.</div>`;
+        return;
+      }
+
+      let cumulativePctSum = 0;
+
+      students.forEach(student => {
+        let attended = 0;
+        historyRecords.forEach(rec => {
+          const st = rec.marks[student.roll];
+          if (st === 'P' || st === 'OD') attended++;
+        });
+
+        const pct = Math.round((attended / totalSessions) * 100);
+        cumulativePctSum += pct;
+        const color = pct >= 75 ? 'var(--accent-green)' : 'var(--accent-red)';
+
+        // Desktop Table Row
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${student.sno}</td>
+          <td><strong>${student.roll}</strong></td>
+          <td style="font-family: monospace;">${student.reg}</td>
+          <td>${student.name}</td>
+          <td>${attended}</td>
+          <td>${totalSessions}</td>
+          <td><strong style="color: ${color}">${pct}%</strong></td>
+        `;
+        reportDesktop.appendChild(tr);
+
+        // Mobile Card
+        const mCard = document.createElement('div');
+        mCard.className = 'student-mobile-card';
+        mCard.innerHTML = `
+          <div class="mobile-card-row">
+            <strong>${student.name}</strong>
+            <span style="font-weight:700; color:${color}; font-size:1.1rem;">${pct}%</span>
+          </div>
+          <div class="mobile-card-row" style="font-size:0.82rem; color:var(--text-secondary);">
+            <span>Roll: ${student.roll} • ${student.reg}</span>
+            <span>Attended: ${attended} / ${totalSessions}</span>
+          </div>
+        `;
+        reportMobile.appendChild(mCard);
+      });
+
+      const average = Math.round(cumulativePctSum / (students.length || 1));
+      document.getElementById('metricAvgAttendance').textContent = `${average}%`;
+    }
+
+    // CSV Download Function
+    function exportToCSV() {
+      const isCommitted = historyRecords.length > 0;
+      let csvContent = "data:text/csv;charset=utf-8,";
+      
+      if (isCommitted) {
+        // Full Cumulative Attendance Report
+        csvContent += "S.No,Roll No,Register No,Student Name,Attended Sessions,Total Sessions,Percentage\n";
+        students.forEach(s => {
+          let attended = 0;
+          historyRecords.forEach(rec => {
+            const st = rec.marks[s.roll];
+            if (st === 'P' || st === 'OD') attended++;
+          });
+          const pct = Math.round((attended / historyRecords.length) * 100);
+          csvContent += `"${s.sno}","${s.roll}","${s.reg}","${s.name}","${attended}","${historyRecords.length}","${pct}%"\n`;
+        });
+      } else {
+        // Active Daily Attendance Sheet
+        const today = new Date().toISOString().split('T')[0];
+        csvContent += `S.No,Roll No,Register No,Student Name,Status (${today})\n`;
+        students.forEach(s => {
+          const status = currentSessionMarks[s.roll] || s.initial || 'P';
+          csvContent += `"${s.sno}","${s.roll}","${s.reg}","${s.name}","${status}"\n`;
+        });
+      }
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `AIML_A_Attendance_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function renderAllViews() {
+      renderMarkView();
+      renderReports();
+    }
+
+    init();
+  </script>
+</body>
+</html>
