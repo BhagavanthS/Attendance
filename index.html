@@ -32,8 +32,8 @@
       --bg-gradient: radial-gradient(circle at 15% 15%, #151828 0%, #050508 100%);
       --orb1-color: #3b2d54;
       --orb2-color: #123d63;
-      --glass-bg: rgba(20, 20, 25, 0.62);
-      --glass-card: rgba(30, 30, 36, 0.65);
+      --glass-bg: rgba(20, 20, 25, 0.65);
+      --glass-card: rgba(30, 30, 36, 0.68);
       --glass-border: rgba(255, 255, 255, 0.12);
       --glass-specular: rgba(255, 255, 255, 0.22);
       --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(255, 255, 255, 0.05);
@@ -91,7 +91,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 1160px;
+      max-width: 1180px;
       background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val)) saturate(180%);
       -webkit-backdrop-filter: blur(var(--blur-val)) saturate(180%);
@@ -253,7 +253,6 @@
       border-color: var(--accent-blue);
     }
 
-    /* Desktop View Table */
     .desktop-table-container {
       display: block;
       width: 100%;
@@ -293,7 +292,6 @@
     td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
     td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
-    /* Mobile Responsive Layout Cards */
     .mobile-cards-container {
       display: none;
       flex-direction: column;
@@ -316,7 +314,6 @@
       align-items: center;
     }
 
-    /* Segmented Present/Absent/OD Toggle Controls */
     .segmented-control {
       display: inline-flex;
       background: var(--segmented-bg);
@@ -334,18 +331,9 @@
       color: var(--text-secondary);
       cursor: pointer;
     }
-    .segmented-control button.status-p.active {
-      background: var(--accent-green);
-      color: #fff;
-    }
-    .segmented-control button.status-a.active {
-      background: var(--accent-red);
-      color: #fff;
-    }
-    .segmented-control button.status-od.active {
-      background: var(--accent-od);
-      color: #fff;
-    }
+    .segmented-control button.status-p.active { background: var(--accent-green); color: #fff; }
+    .segmented-control button.status-a.active { background: var(--accent-red); color: #fff; }
+    .segmented-control button.status-od.active { background: var(--accent-od); color: #fff; }
 
     .badge-status {
       display: inline-block;
@@ -402,7 +390,35 @@
     .view-pane { display: none; }
     .view-pane.active { display: block; }
 
-    /* Responsive Breakpoint: Desktop-to-Mobile Component Layout */
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal-card {
+      width: 90%;
+      max-width: 380px;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
     @media (max-width: 768px) {
       body { padding: 12px 8px; }
       .liquid-panel { padding: 20px; border-radius: 20px; gap: 16px; }
@@ -418,11 +434,24 @@
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
 
+  <!-- PASSWORD MODAL FOR TEACHER LOGIN -->
+  <div class="modal-overlay" id="passwordModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1.25rem; font-weight: 700;">Faculty Authentication</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">Enter faculty passcode to unlock attendance marking privileges.<br><strong>(Default: admin123)</strong></p>
+      <input type="password" id="teacherPassInput" class="glass-input" placeholder="Enter Password" style="width: 100%;" onkeydown="if(event.key==='Enter') verifyTeacherPassword()" />
+      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 8px;">
+        <button class="btn-liquid btn-secondary" onclick="closeAuthModal()">Cancel</button>
+        <button class="btn-liquid" onclick="verifyTeacherPassword()">Authenticate</button>
+      </div>
+    </div>
+  </div>
+
   <main class="liquid-panel">
     <header>
       <div>
         <h1 class="brand-title">AIML - A Attendance Register</h1>
-        <p class="brand-sub">Student Attendance Portal • Sri Eshwar College of Engineering</p>
+        <p class="brand-sub">Continuous Year Session Storage • Sri Eshwar College of Engineering</p>
       </div>
 
       <div class="header-actions">
@@ -431,59 +460,61 @@
           <span id="themeLabel">🌙 Dark Mode</span>
         </button>
 
-        <!-- Role Indicator & Toggle -->
+        <!-- Role Badge with Password Trigger -->
         <div class="role-badge" id="roleBadge">
-          <span>Role: <strong id="currentRoleText">Teacher</strong></span>
-          <button style="border:none; background:none; color:var(--accent-blue); cursor:pointer; font-weight:600; margin-left:4px;" onclick="promptSwitchRole()">Switch</button>
+          <span>Role: <strong id="currentRoleText">Student</strong></span>
+          <button style="border:none; background:none; color:var(--accent-blue); cursor:pointer; font-weight:600; margin-left:4px;" onclick="handleRoleClick()" id="roleActionBtn">Teacher Login</button>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
       <nav class="nav-pills">
-        <button class="nav-btn active" id="tabMarkBtn" onclick="switchView('mark')">Mark Attendance</button>
-        <button class="nav-btn" id="tabRegisterBtn" onclick="switchView('register')">Add Student</button>
-        <button class="nav-btn" id="tabReportBtn" onclick="switchView('report')">Reports & Export</button>
+        <button class="nav-btn active" id="tabMarkBtn" onclick="switchView('mark')">Attendance Register</button>
+        <button class="nav-btn" id="tabRegisterBtn" onclick="switchView('register')" style="display: none;">Add Student</button>
+        <button class="nav-btn" id="tabReportBtn" onclick="switchView('report')">Database Reports & Export</button>
       </nav>
     </header>
 
-    <!-- 1. MARK ATTENDANCE VIEW -->
+    <!-- 1. ATTENDANCE REGISTER VIEW -->
     <section id="view-mark" class="view-pane active">
       <div class="glass-card">
         <div class="card-header">
-          <div>
-            <div class="card-title">Roll Call: AIML - A</div>
-            <p style="font-size:0.82rem; color:var(--text-secondary);" id="activeSessionDate"></p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div class="card-title">Daily Attendance Session</div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <label for="sessionDatePicker" style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">SELECT DATE:</label>
+              <input type="date" id="sessionDatePicker" class="glass-input" style="padding: 5px 10px; font-size:0.85rem;" onchange="onDateChanged()" />
+            </div>
           </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <span id="roleNotice" style="font-size: 0.8rem; font-weight:600; color: var(--accent-blue);"></span>
-            <button class="btn-liquid btn-secondary" onclick="exportToCSV()" title="Download Attendance as CSV">
-              📥 Export CSV
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <span id="roleNotice" style="font-size: 0.8rem; font-weight:600; color: var(--accent-blue);">Student Mode (Read-Only)</span>
+            <button class="btn-liquid btn-secondary" onclick="exportToCSV(false)" title="Download Selected Day CSV">
+              📥 Day CSV
             </button>
           </div>
         </div>
 
-        <!-- Desktop View Table -->
+        <!-- Desktop Table View -->
         <div class="desktop-table-container">
           <table>
             <thead>
               <tr>
-                <th style="width: 60px;">S.No</th>
-                <th style="width: 80px;">Roll No</th>
+                <th style="width: 50px;">S.No</th>
+                <th style="width: 70px;">Roll No</th>
                 <th>Register No</th>
                 <th>Student Name</th>
                 <th>Status</th>
-                <th class="teacher-only-col" style="width: 80px;">Action</th>
+                <th class="teacher-only-col" style="width: 80px; display: none;">Action</th>
               </tr>
             </thead>
             <tbody id="attendanceDesktopTbody"></tbody>
           </table>
         </div>
 
-        <!-- Mobile View Cards -->
+        <!-- Mobile Layout Cards -->
         <div class="mobile-cards-container" id="attendanceMobileContainer"></div>
 
-        <div id="saveSessionContainer" style="margin-top: 18px; display: flex; justify-content: flex-end;">
-          <button class="btn-liquid" onclick="commitAttendanceSession()">Commit Session Records</button>
+        <div id="saveSessionContainer" style="margin-top: 18px; display: none; justify-content: flex-end; gap: 12px;">
+          <button class="btn-liquid" onclick="commitAttendanceSession()">Save & Commit Date to Database</button>
         </div>
       </div>
     </section>
@@ -516,32 +547,37 @@
       </div>
     </section>
 
-    <!-- 3. REPORTS & DOWNLOAD VIEW -->
+    <!-- 3. DATABASE REPORTS & EXPORT -->
     <section id="view-report" class="view-pane">
       <div class="metric-grid">
         <div class="metric-badge">
           <span>Total Students</span>
-          <strong id="metricTotalStudents">0</strong>
+          <strong id="metricTotalStudents">68</strong>
         </div>
         <div class="metric-badge">
-          <span>Average Attendance</span>
-          <strong id="metricAvgAttendance">0%</strong>
-        </div>
-        <div class="metric-badge">
-          <span>Committed Sessions</span>
+          <span>Continuous Days Recorded</span>
           <strong id="metricTotalSessions">0</strong>
+        </div>
+        <div class="metric-badge">
+          <span>Average Cumulative Attendance</span>
+          <strong id="metricAvgAttendance">0%</strong>
         </div>
       </div>
 
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title">Cumulative Attendance Register</div>
-            <p style="font-size:0.82rem; color:var(--text-secondary);">Download real-time or committed session records</p>
+            <div class="card-title">IndexedDB Full-Year Cumulative Register</div>
+            <p style="font-size:0.82rem; color:var(--text-secondary);">Indexed persistent client storage for full academic continuity</p>
           </div>
-          <button class="btn-liquid" onclick="exportToCSV()">
-            📥 Download CSV Report
-          </button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-liquid btn-secondary teacher-only-col" onclick="seedContinuousYearData()" style="display: none;" title="Populate full continuous academic year data for testing">
+              ⚡ Preload Academic Year (180 Days)
+            </button>
+            <button class="btn-liquid" onclick="exportToCSV(true)">
+              📥 Download Cumulative CSV (Year)
+            </button>
+          </div>
         </div>
 
         <div class="desktop-table-container">
@@ -552,8 +588,8 @@
                 <th>Roll No</th>
                 <th>Register No</th>
                 <th>Name</th>
-                <th>Attended (P/OD)</th>
-                <th>Total Sessions</th>
+                <th>Attended Days</th>
+                <th>Total Days Recorded</th>
                 <th>Percentage</th>
               </tr>
             </thead>
@@ -567,7 +603,7 @@
   </main>
 
   <script>
-    // Complete dataset of all 68 students from AIML-A Class Register
+    // 68 Student Master Dataset
     const AIML_A_STUDENTS = [
       { sno: 1, roll: 1, reg: "26BEADMAM002", name: "ABDUL GAFOOR M", initial: "P" },
       { sno: 2, roll: 2, reg: "26BEADMAM001", name: "AHAMED AFZAL I", initial: "P" },
@@ -581,7 +617,7 @@
       { sno: 10, roll: 10, reg: "26BEADMAM027", name: "AKSHAYA U", initial: "P" },
       { sno: 11, roll: 11, reg: "26BEADMAM063", name: "ANBARASU N", initial: "P" },
       { sno: 12, roll: 12, reg: "26BEADMAM115", name: "ANICHA R", initial: "P" },
-      { sno: 13, roll: 13, reg: "26BEADMAM096", name: "ARULM興味UGAN M", name: "ARULM興味UGAN M" ? "ARULM興味UGAN M".replace("興味","UR") : "ARULMURUGAN M", initial: "P" },
+      { sno: 13, roll: 13, reg: "26BEADMAM096", name: "ARULMURUGAN M", initial: "P" },
       { sno: 14, roll: 14, reg: "26BEADMAM028", name: "AVANTIKA S", initial: "A" },
       { sno: 15, roll: 15, reg: "26BEADMAM124", name: "BARANIKA S N", initial: "P" },
       { sno: 16, roll: 16, reg: "26BEADMAM004", name: "BAVANASRI S", initial: "P" },
@@ -639,89 +675,177 @@
       { sno: 68, roll: 68, reg: "26BEADMAM095", name: "NAVEEN V", initial: "P" }
     ];
 
-    let currentUserRole = localStorage.getItem('ams_role') || 'Teacher';
-    let currentTheme = localStorage.getItem('ams_theme') || 'light';
-    let students = JSON.parse(localStorage.getItem('ams_aiml_students')) || AIML_A_STUDENTS;
-    let historyRecords = JSON.parse(localStorage.getItem('ams_aiml_history')) || [];
-    let currentSessionMarks = {};
+    // State Variables
+    let currentUserRole = "Student"; // STRICT DEFAULT LOGIN: STUDENT
+    let currentTheme = localStorage.getItem("ams_theme") || "light";
+    let students = JSON.parse(localStorage.getItem("ams_aiml_students")) || AIML_A_STUDENTS;
+    let selectedDate = new Date().toISOString().split("T")[0];
+    let dailyAttendanceMarks = {};
+    let dbInstance = null;
 
-    function init() {
-      applyTheme(currentTheme);
-
-      document.getElementById('activeSessionDate').textContent = new Date().toLocaleDateString('en-US', {
-        weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
+    // --- IndexedDB Continuous Database Initializer ---
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open("AMS_Continuous_DB", 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains("attendance_sessions")) {
+            db.createObjectStore("attendance_sessions", { keyPath: "date" });
+          }
+        };
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        req.onerror = (e) => reject(e);
       });
-
-      // Initialize default session status from initial dataset
-      students.forEach(s => {
-        currentSessionMarks[s.roll] = s.initial || 'P';
-      });
-
-      syncRolePermissions();
-      renderAllViews();
     }
 
-    function promptSwitchRole() {
-      currentUserRole = currentUserRole === 'Teacher' ? 'Student' : 'Teacher';
-      localStorage.setItem('ams_role', currentUserRole);
+    async function dbGetSession(date) {
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction("attendance_sessions", "readonly");
+        const store = tx.objectStore("attendance_sessions");
+        const req = store.get(date);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    async function dbSaveSession(date, marks) {
+      return new Promise((resolve, reject) => {
+        const tx = dbInstance.transaction("attendance_sessions", "readwrite");
+        const store = tx.objectStore("attendance_sessions");
+        const req = store.put({ date, marks });
+        req.onsuccess = () => resolve();
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    async function dbGetAllSessions() {
+      return new Promise((resolve) => {
+        const tx = dbInstance.transaction("attendance_sessions", "readonly");
+        const store = tx.objectStore("attendance_sessions");
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    // App Initialization
+    async function init() {
+      applyTheme(currentTheme);
+      document.getElementById("sessionDatePicker").value = selectedDate;
+
+      await openDatabase();
+      await loadSessionForDate(selectedDate);
       syncRolePermissions();
-      renderAllViews();
+      await renderReports();
+    }
+
+    // Loading Attendance For a Given Date
+    async function loadSessionForDate(date) {
+      const record = await dbGetSession(date);
+      dailyAttendanceMarks = {};
+      if (record && record.marks) {
+        dailyAttendanceMarks = { ...record.marks };
+      } else {
+        // Default to present or register status
+        students.forEach(s => {
+          dailyAttendanceMarks[s.roll] = s.initial || "P";
+        });
+      }
+      renderMarkView();
+    }
+
+    async function onDateChanged() {
+      selectedDate = document.getElementById("sessionDatePicker").value;
+      await loadSessionForDate(selectedDate);
+    }
+
+    // Authentication & Role Handling
+    function handleRoleClick() {
+      if (currentUserRole === "Teacher") {
+        currentUserRole = "Student";
+        syncRolePermissions();
+        renderMarkView();
+      } else {
+        document.getElementById("passwordModal").style.display = "flex";
+        document.getElementById("teacherPassInput").value = "";
+        document.getElementById("teacherPassInput").focus();
+      }
+    }
+
+    function closeAuthModal() {
+      document.getElementById("passwordModal").style.display = "none";
+    }
+
+    function verifyTeacherPassword() {
+      const pass = document.getElementById("teacherPassInput").value;
+      if (pass === "admin123") {
+        currentUserRole = "Teacher";
+        closeAuthModal();
+        syncRolePermissions();
+        renderMarkView();
+      } else {
+        alert("Incorrect passcode. Access denied.");
+      }
     }
 
     function syncRolePermissions() {
-      document.getElementById('currentRoleText').textContent = currentUserRole;
-      const isTeacher = currentUserRole === 'Teacher';
+      const isTeacher = currentUserRole === "Teacher";
+      document.getElementById("currentRoleText").textContent = currentUserRole;
+      document.getElementById("roleActionBtn").textContent = isTeacher ? "Log Out" : "Teacher Login";
+      document.getElementById("tabRegisterBtn").style.display = isTeacher ? "inline-block" : "none";
+      document.getElementById("saveSessionContainer").style.display = isTeacher ? "flex" : "none";
+      
+      document.getElementById("roleNotice").textContent = isTeacher 
+        ? "Teacher Mode (Marking & Editing Enabled)" 
+        : "Student Mode (Read-Only Access)";
 
-      document.getElementById('tabRegisterBtn').style.display = isTeacher ? 'inline-block' : 'none';
-      document.getElementById('saveSessionContainer').style.display = isTeacher ? 'flex' : 'none';
-      document.getElementById('roleNotice').textContent = isTeacher 
-        ? 'Teacher Mode (Editing & Attendance Marking Enabled)' 
-        : 'Student Mode (Read-Only Access)';
-
-      document.querySelectorAll('.teacher-only-col').forEach(col => {
-        col.style.display = isTeacher ? '' : 'none';
+      document.querySelectorAll(".teacher-only-col").forEach(col => {
+        col.style.display = isTeacher ? "" : "none";
       });
 
-      if (!isTeacher && document.getElementById('view-register').classList.contains('active')) {
-        switchView('mark');
+      if (!isTeacher && document.getElementById("view-register").classList.contains("active")) {
+        switchView("mark");
       }
     }
 
     function toggleTheme() {
-      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      currentTheme = currentTheme === "light" ? "dark" : "light";
       applyTheme(currentTheme);
-      localStorage.setItem('ams_theme', currentTheme);
+      localStorage.setItem("ams_theme", currentTheme);
     }
 
     function applyTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      document.getElementById('themeLabel').textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      document.documentElement.setAttribute("data-theme", theme);
+      document.getElementById("themeLabel").textContent = theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
     }
 
     function switchView(viewId) {
-      document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(".view-pane").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
 
-      document.getElementById(`view-${viewId}`).classList.add('active');
+      document.getElementById(`view-${viewId}`).classList.add("active");
       const activeBtn = document.getElementById(`tab${viewId.charAt(0).toUpperCase() + viewId.slice(1)}Btn`);
-      if (activeBtn) activeBtn.classList.add('active');
+      if (activeBtn) activeBtn.classList.add("active");
 
-      if (viewId === 'report') renderReports();
+      if (viewId === "report") renderReports();
     }
 
     function renderMarkView() {
-      const isTeacher = currentUserRole === 'Teacher';
-      const desktopTbody = document.getElementById('attendanceDesktopTbody');
-      const mobileContainer = document.getElementById('attendanceMobileContainer');
+      const isTeacher = currentUserRole === "Teacher";
+      const desktopTbody = document.getElementById("attendanceDesktopTbody");
+      const mobileContainer = document.getElementById("attendanceMobileContainer");
 
-      desktopTbody.innerHTML = '';
-      mobileContainer.innerHTML = '';
+      desktopTbody.innerHTML = "";
+      mobileContainer.innerHTML = "";
 
       students.forEach(student => {
-        const status = currentSessionMarks[student.roll] || 'P';
+        const status = dailyAttendanceMarks[student.roll] || "P";
 
-        // Desktop Table Row
-        const tr = document.createElement('tr');
+        // Desktop Row
+        const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${student.sno}</td>
           <td><strong>${student.roll}</strong></td>
@@ -730,9 +854,9 @@
           <td>
             ${isTeacher ? `
               <div class="segmented-control">
-                <button class="status-p ${status === 'P' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'P')">P</button>
-                <button class="status-a ${status === 'A' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'A')">A</button>
-                <button class="status-od ${status === 'OD' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'OD')">OD</button>
+                <button class="status-p ${status === 'P' ? 'active' : ''}" onclick="setStatus(${student.roll}, 'P')">P</button>
+                <button class="status-a ${status === 'A' ? 'active' : ''}" onclick="setStatus(${student.roll}, 'A')">A</button>
+                <button class="status-od ${status === 'OD' ? 'active' : ''}" onclick="setStatus(${student.roll}, 'OD')">OD</button>
               </div>
             ` : `
               <span class="badge-status badge-${status.toLowerCase()}">${status}</span>
@@ -746,9 +870,9 @@
         `;
         desktopTbody.appendChild(tr);
 
-        // Mobile Card
-        const card = document.createElement('div');
-        card.className = 'student-mobile-card';
+        // Mobile Responsive Card
+        const card = document.createElement("div");
+        card.className = "student-mobile-card";
         card.innerHTML = `
           <div class="mobile-card-row">
             <div>
@@ -758,12 +882,12 @@
             ${isTeacher ? `<button class="btn-remove" onclick="removeStudent(${student.roll})">Delete</button>` : ''}
           </div>
           <div class="mobile-card-row">
-            <span style="font-size:0.8rem; color:var(--text-secondary);">Status:</span>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">Session Status:</span>
             ${isTeacher ? `
               <div class="segmented-control">
-                <button class="status-p ${status === 'P' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'P')">P</button>
-                <button class="status-a ${status === 'A' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'A')">A</button>
-                <button class="status-od ${status === 'OD' ? 'active' : ''}" onclick="setStudentStatus(${student.roll}, 'OD')">OD</button>
+                <button class="status-p ${status === 'P' ? 'active' : ''}" onclick="setStatus(${student.roll}, 'P')">P</button>
+                <button class="status-a ${status === 'A' ? 'active' : ''}" onclick="setStatus(${student.roll}, 'A')">A</button>
+                <button class="status-od ${status === 'OD' ? 'active' : ''}" onclick="setStatus(${student.roll}, 'OD')">OD</button>
               </div>
             ` : `
               <span class="badge-status badge-${status.toLowerCase()}">${status}</span>
@@ -774,76 +898,72 @@
       });
     }
 
-    function setStudentStatus(roll, status) {
-      if (currentUserRole !== 'Teacher') return;
-      currentSessionMarks[roll] = status;
+    function setStatus(roll, status) {
+      if (currentUserRole !== "Teacher") return;
+      dailyAttendanceMarks[roll] = status;
       renderMarkView();
+    }
+
+    async function commitAttendanceSession() {
+      if (currentUserRole !== "Teacher") return;
+      await dbSaveSession(selectedDate, dailyAttendanceMarks);
+      alert(`Attendance for ${selectedDate} committed into IndexedDB.`);
+      await renderReports();
     }
 
     function handleAddStudent(e) {
       e.preventDefault();
-      if (currentUserRole !== 'Teacher') return;
+      if (currentUserRole !== "Teacher") return;
 
-      const sno = parseInt(document.getElementById('studentSno').value);
-      const roll = parseInt(document.getElementById('studentRoll').value);
-      const reg = document.getElementById('studentReg').value.trim();
-      const name = document.getElementById('studentName').value.trim().toUpperCase();
+      const sno = parseInt(document.getElementById("studentSno").value);
+      const roll = parseInt(document.getElementById("studentRoll").value);
+      const reg = document.getElementById("studentReg").value.trim();
+      const name = document.getElementById("studentName").value.trim().toUpperCase();
 
       if (students.some(s => s.roll === roll)) {
-        alert('A student with this Roll Number is already registered.');
+        alert("A student with this Roll Number is already registered.");
         return;
       }
 
       const newStudent = { sno, roll, reg, name, initial: "P" };
       students.push(newStudent);
-      currentSessionMarks[roll] = 'P';
-      localStorage.setItem('ams_aiml_students', JSON.stringify(students));
+      dailyAttendanceMarks[roll] = "P";
+      localStorage.setItem("ams_aiml_students", JSON.stringify(students));
 
-      document.getElementById('addStudentForm').reset();
-      renderAllViews();
-      switchView('mark');
+      document.getElementById("addStudentForm").reset();
+      renderMarkView();
+      switchView("mark");
       alert(`Student ${name} successfully enrolled.`);
     }
 
     function removeStudent(roll) {
-      if (currentUserRole !== 'Teacher') return;
+      if (currentUserRole !== "Teacher") return;
       if (!confirm(`Are you sure you want to remove Roll No ${roll}?`)) return;
 
       students = students.filter(s => s.roll !== roll);
-      delete currentSessionMarks[roll];
-      localStorage.setItem('ams_aiml_students', JSON.stringify(students));
-      renderAllViews();
-    }
-
-    function commitAttendanceSession() {
-      if (currentUserRole !== 'Teacher') return;
-
-      const session = {
-        date: new Date().toISOString(),
-        marks: { ...currentSessionMarks }
-      };
-
-      historyRecords.push(session);
-      localStorage.setItem('ams_aiml_history', JSON.stringify(historyRecords));
-      alert('Attendance session successfully committed to local records.');
+      delete dailyAttendanceMarks[roll];
+      localStorage.setItem("ams_aiml_students", JSON.stringify(students));
+      renderMarkView();
       renderReports();
     }
 
-    function renderReports() {
-      const totalSessions = historyRecords.length;
-      document.getElementById('metricTotalStudents').textContent = students.length;
-      document.getElementById('metricTotalSessions').textContent = totalSessions;
+    // Reports View - IndexedDB Aggregation
+    async function renderReports() {
+      const allSessions = await dbGetAllSessions();
+      const totalDays = allSessions.length;
 
-      const reportDesktop = document.getElementById('reportDesktopTbody');
-      const reportMobile = document.getElementById('reportMobileContainer');
-      reportDesktop.innerHTML = '';
-      reportMobile.innerHTML = '';
+      document.getElementById("metricTotalStudents").textContent = students.length;
+      document.getElementById("metricTotalSessions").textContent = totalDays;
 
-      if (totalSessions === 0) {
-        document.getElementById('metricAvgAttendance').textContent = 'N/A';
-        const emptyMsg = `<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 24px;">No committed sessions yet. Marking view contains current live attendance.</td></tr>`;
-        reportDesktop.innerHTML = emptyMsg;
-        reportMobile.innerHTML = `<div style="text-align:center; color:var(--text-secondary); padding:20px;">No committed sessions yet.</div>`;
+      const reportDesktop = document.getElementById("reportDesktopTbody");
+      const reportMobile = document.getElementById("reportMobileContainer");
+      reportDesktop.innerHTML = "";
+      reportMobile.innerHTML = "";
+
+      if (totalDays === 0) {
+        document.getElementById("metricAvgAttendance").textContent = "N/A";
+        reportDesktop.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-secondary); padding:24px;">No session days logged yet in the database. Commit attendance to build records.</td></tr>`;
+        reportMobile.innerHTML = `<div style="text-align:center; color:var(--text-secondary); padding:20px;">No session days recorded yet.</div>`;
         return;
       }
 
@@ -851,31 +971,29 @@
 
       students.forEach(student => {
         let attended = 0;
-        historyRecords.forEach(rec => {
-          const st = rec.marks[student.roll];
-          if (st === 'P' || st === 'OD') attended++;
+        allSessions.forEach(session => {
+          const st = session.marks[student.roll];
+          if (st === "P" || st === "OD") attended++;
         });
 
-        const pct = Math.round((attended / totalSessions) * 100);
+        const pct = Math.round((attended / totalDays) * 100);
         cumulativePctSum += pct;
-        const color = pct >= 75 ? 'var(--accent-green)' : 'var(--accent-red)';
+        const color = pct >= 75 ? "var(--accent-green)" : "var(--accent-red)";
 
-        // Desktop Table Row
-        const tr = document.createElement('tr');
+        const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${student.sno}</td>
           <td><strong>${student.roll}</strong></td>
           <td style="font-family: monospace;">${student.reg}</td>
           <td>${student.name}</td>
           <td>${attended}</td>
-          <td>${totalSessions}</td>
+          <td>${totalDays}</td>
           <td><strong style="color: ${color}">${pct}%</strong></td>
         `;
         reportDesktop.appendChild(tr);
 
-        // Mobile Card
-        const mCard = document.createElement('div');
-        mCard.className = 'student-mobile-card';
+        const mCard = document.createElement("div");
+        mCard.className = "student-mobile-card";
         mCard.innerHTML = `
           <div class="mobile-card-row">
             <strong>${student.name}</strong>
@@ -883,39 +1001,64 @@
           </div>
           <div class="mobile-card-row" style="font-size:0.82rem; color:var(--text-secondary);">
             <span>Roll: ${student.roll} • ${student.reg}</span>
-            <span>Attended: ${attended} / ${totalSessions}</span>
+            <span>Attended: ${attended} / ${totalDays} Days</span>
           </div>
         `;
         reportMobile.appendChild(mCard);
       });
 
-      const average = Math.round(cumulativePctSum / (students.length || 1));
-      document.getElementById('metricAvgAttendance').textContent = `${average}%`;
+      const avg = Math.round(cumulativePctSum / (students.length || 1));
+      document.getElementById("metricAvgAttendance").textContent = `${avg}%`;
     }
 
-    // CSV Download Function
-    function exportToCSV() {
-      const isCommitted = historyRecords.length > 0;
+    // Continuous 1-Year Preload Generator for Testing
+    async function seedContinuousYearData() {
+      if (!confirm("This will preload 180 continuous academic days of attendance into IndexedDB. Proceed?")) return;
+      const startDate = new Date("2026-01-05");
+      let count = 0;
+
+      for (let i = 0; count < 180; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        if (d.getDay() !== 0 && d.getDay() !== 6) { // Weekdays only
+          const dateStr = d.toISOString().split("T")[0];
+          const marks = {};
+          students.forEach(s => {
+            const rand = Math.random();
+            marks[s.roll] = rand > 0.15 ? "P" : (rand > 0.08 ? "OD" : "A");
+          });
+          await dbSaveSession(dateStr, marks);
+          count++;
+        }
+      }
+      alert("Successfully seeded 180 continuous academic days into IndexedDB.");
+      await renderReports();
+    }
+
+    // CSV Download Function (Day or Year Cumulative)
+    async function exportToCSV(isCumulative) {
+      const allSessions = await dbGetAllSessions();
       let csvContent = "data:text/csv;charset=utf-8,";
-      
-      if (isCommitted) {
-        // Full Cumulative Attendance Report
-        csvContent += "S.No,Roll No,Register No,Student Name,Attended Sessions,Total Sessions,Percentage\n";
+
+      if (isCumulative) {
+        if (allSessions.length === 0) {
+          alert("No recorded sessions found in the database.");
+          return;
+        }
+        csvContent += "S.No,Roll No,Register No,Student Name,Attended Days,Total Days Recorded,Percentage\n";
         students.forEach(s => {
           let attended = 0;
-          historyRecords.forEach(rec => {
-            const st = rec.marks[s.roll];
-            if (st === 'P' || st === 'OD') attended++;
+          allSessions.forEach(session => {
+            const st = session.marks[s.roll];
+            if (st === "P" || st === "OD") attended++;
           });
-          const pct = Math.round((attended / historyRecords.length) * 100);
-          csvContent += `"${s.sno}","${s.roll}","${s.reg}","${s.name}","${attended}","${historyRecords.length}","${pct}%"\n`;
+          const pct = Math.round((attended / allSessions.length) * 100);
+          csvContent += `"${s.sno}","${s.roll}","${s.reg}","${s.name}","${attended}","${allSessions.length}","${pct}%"\n`;
         });
       } else {
-        // Active Daily Attendance Sheet
-        const today = new Date().toISOString().split('T')[0];
-        csvContent += `S.No,Roll No,Register No,Student Name,Status (${today})\n`;
+        csvContent += `S.No,Roll No,Register No,Student Name,Status (${selectedDate})\n`;
         students.forEach(s => {
-          const status = currentSessionMarks[s.roll] || s.initial || 'P';
+          const status = dailyAttendanceMarks[s.roll] || "P";
           csvContent += `"${s.sno}","${s.roll}","${s.reg}","${s.name}","${status}"\n`;
         });
       }
@@ -923,15 +1066,10 @@
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `AIML_A_Attendance_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute("download", `AIML_A_${isCumulative ? 'Cumulative_Year_Report' : selectedDate}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
-
-    function renderAllViews() {
-      renderMarkView();
-      renderReports();
     }
 
     init();
