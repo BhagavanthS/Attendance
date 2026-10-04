@@ -4,431 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Attendance Management System — AIML-A</title>
-  <style>
-    :root {
-      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
-      --bg-gradient: radial-gradient(circle at 10% 20%, #e0c3fc 0%, #8ec5fc 100%);
-      --orb1-color: #fa709a;
-      --orb2-color: #4facfe;
-      --glass-bg: rgba(255, 255, 255, 0.45);
-      --glass-card: rgba(255, 255, 255, 0.58);
-      --glass-border: rgba(255, 255, 255, 0.65);
-      --glass-specular: rgba(255, 255, 255, 0.95);
-      --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
-      --text-primary: #1d1d1f;
-      --text-secondary: #6e6e73;
-      --input-bg: rgba(255, 255, 255, 0.65);
-      --row-bg: rgba(255, 255, 255, 0.65);
-      --row-hover: rgba(255, 255, 255, 0.88);
-      --segmented-bg: rgba(0, 0, 0, 0.06);
-      --accent-blue: #0071e3;
-      --accent-green: #34c759;
-      --accent-red: #ff3b30;
-      --accent-od: #ff9500;
-      --blur-val: 32px;
-    }
-
-    [data-theme="dark"] {
-      --bg-gradient: radial-gradient(circle at 15% 15%, #151828 0%, #050508 100%);
-      --orb1-color: #3b2d54;
-      --orb2-color: #123d63;
-      --glass-bg: rgba(20, 20, 25, 0.65);
-      --glass-card: rgba(30, 30, 36, 0.68);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --glass-specular: rgba(255, 255, 255, 0.22);
-      --glass-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(255, 255, 255, 0.05);
-      --text-primary: #f5f5f7;
-      --text-secondary: #a1a1a6;
-      --input-bg: rgba(45, 45, 52, 0.65);
-      --row-bg: rgba(38, 38, 46, 0.6);
-      --row-hover: rgba(50, 50, 60, 0.85);
-      --segmented-bg: rgba(255, 255, 255, 0.08);
-      --accent-blue: #2997ff;
-      --accent-green: #30d158;
-      --accent-red: #ff453a;
-      --accent-od: #ff9f0a;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: var(--font-stack);
-      -webkit-font-smoothing: antialiased;
-      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
-    }
-
-    body {
-      min-height: 100vh;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 24px 16px;
-      color: var(--text-primary);
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(90px);
-      z-index: 0;
-      opacity: 0.65;
-      animation: float 20s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-    .orb-1 { width: 480px; height: 480px; background: var(--orb1-color); top: -120px; left: -100px; }
-    .orb-2 { width: 520px; height: 520px; background: var(--orb2-color); bottom: -150px; right: -100px; animation-duration: 24s; }
-    @keyframes float {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(60px, 50px) scale(1.12); }
-    }
-
-    .liquid-panel {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 1180px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--blur-val)) saturate(180%);
-      -webkit-backdrop-filter: blur(var(--blur-val)) saturate(180%);
-      border: 1px solid var(--glass-border);
-      border-top: 1.5px solid var(--glass-specular);
-      border-radius: 28px;
-      box-shadow: var(--glass-shadow);
-      padding: 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      margin-bottom: 40px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      border-bottom: 1px solid var(--glass-border);
-      padding-bottom: 20px;
-    }
-    .brand-title {
-      font-size: 1.55rem;
-      font-weight: 700;
-      letter-spacing: -0.025em;
-    }
-    .brand-sub {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .nav-pills {
-      display: flex;
-      background: var(--segmented-bg);
-      border-radius: 999px;
-      padding: 4px;
-      border: 1px solid var(--glass-border);
-    }
-    .nav-btn {
-      border: none;
-      background: transparent;
-      padding: 8px 18px;
-      border-radius: 999px;
-      font-size: 0.86rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-    .nav-btn.active {
-      background: rgba(255, 255, 255, 0.95);
-      color: #1d1d1f;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    [data-theme="dark"] .nav-btn.active {
-      background: rgba(255, 255, 255, 0.22);
-      color: #fff;
-    }
-
-    .icon-btn, .role-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      border: 1px solid var(--glass-border);
-      background: var(--segmented-bg);
-      color: var(--text-primary);
-      cursor: pointer;
-    }
-    .btn-liquid {
-      background: linear-gradient(135deg, var(--accent-blue), #0056b3);
-      color: #ffffff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.88rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 14px rgba(0, 113, 227, 0.28);
-    }
-    .btn-liquid:hover {
-      box-shadow: 0 6px 20px rgba(0, 113, 227, 0.42);
-      transform: translateY(-1px);
-    }
-    .btn-secondary {
-      background: var(--segmented-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--text-primary);
-      box-shadow: none;
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    .glass-card {
-      background: var(--glass-card);
-      border-radius: 22px;
-      border: 1px solid var(--glass-border);
-      border-top: 1.5px solid var(--glass-specular);
-      padding: 22px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
-    }
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      align-items: flex-end;
-    }
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .field-group label {
-      font-size: 0.76rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-secondary);
-    }
-    .glass-input, .glass-select {
-      background: var(--input-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 0.9rem;
-      color: var(--text-primary);
-      outline: none;
-    }
-    .glass-input:focus, .glass-select:focus {
-      border-color: var(--accent-blue);
-    }
-
-    .desktop-table-container {
-      display: block;
-      width: 100%;
-      overflow-x: auto;
-      max-height: 580px;
-    }
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 6px;
-    }
-    thead th {
-      position: sticky;
-      top: 0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      font-size: 0.74rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-secondary);
-      padding: 10px 14px;
-      text-align: left;
-      z-index: 2;
-    }
-    tbody tr {
-      background: var(--row-bg);
-      border-radius: 12px;
-    }
-    tbody tr:hover {
-      background: var(--row-hover);
-    }
-    td {
-      padding: 10px 14px;
-      font-size: 0.88rem;
-    }
-    td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-    td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-
-    .mobile-cards-container {
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 600px;
-      overflow-y: auto;
-    }
-    .student-mobile-card {
-      background: var(--row-bg);
-      border-radius: 16px;
-      padding: 16px;
-      border: 1px solid var(--glass-border);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .mobile-card-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .segmented-control {
-      display: inline-flex;
-      background: var(--segmented-bg);
-      padding: 3px;
-      border-radius: 10px;
-      gap: 2px;
-    }
-    .segmented-control button {
-      border: none;
-      background: transparent;
-      padding: 5px 11px;
-      border-radius: 7px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-    .segmented-control button.status-p.active { background: var(--accent-green); color: #fff; }
-    .segmented-control button.status-a.active { background: var(--accent-red); color: #fff; }
-    .segmented-control button.status-od.active { background: var(--accent-od); color: #fff; }
-
-    .badge-status {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-    .badge-p { background: rgba(52, 199, 89, 0.15); color: var(--accent-green); }
-    .badge-a { background: rgba(255, 59, 48, 0.15); color: var(--accent-red); }
-    .badge-od { background: rgba(255, 149, 0, 0.15); color: var(--accent-od); }
-
-    .btn-remove {
-      background: rgba(255, 59, 48, 0.12);
-      border: 1px solid rgba(255, 59, 48, 0.22);
-      color: var(--accent-red);
-      padding: 4px 9px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-remove:hover {
-      background: var(--accent-red);
-      color: #fff;
-    }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .metric-badge {
-      padding: 16px;
-      border-radius: 16px;
-      background: var(--glass-card);
-      border: 1px solid var(--glass-border);
-      text-align: center;
-    }
-    .metric-badge span {
-      display: block;
-      font-size: 0.76rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .metric-badge strong {
-      font-size: 1.55rem;
-      margin-top: 4px;
-      display: block;
-    }
-
-    .view-pane { display: none; }
-    .view-pane.active { display: block; }
-
-    /* Modal Styling */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-    }
-    .modal-card {
-      width: 90%;
-      max-width: 380px;
-      background: var(--glass-card);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: var(--glass-shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      text-align: center;
-    }
-
-    @media (max-width: 768px) {
-      body { padding: 12px 8px; }
-      .liquid-panel { padding: 20px; border-radius: 20px; gap: 16px; }
-      .header-actions { width: 100%; justify-content: space-between; }
-      .nav-pills { width: 100%; justify-content: space-around; order: 3; }
-      .desktop-table-container { display: none; }
-      .mobile-cards-container { display: flex; }
-      .form-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <!-- External Stylesheet Reference -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="orb orb-1"></div>
@@ -603,7 +180,6 @@
   </main>
 
   <script>
-    // 68 Student Master Dataset
     const AIML_A_STUDENTS = [
       { sno: 1, roll: 1, reg: "26BEADMAM002", name: "ABDUL GAFOOR M", initial: "P" },
       { sno: 2, roll: 2, reg: "26BEADMAM001", name: "AHAMED AFZAL I", initial: "P" },
@@ -675,15 +251,13 @@
       { sno: 68, roll: 68, reg: "26BEADMAM095", name: "NAVEEN V", initial: "P" }
     ];
 
-    // State Variables
-    let currentUserRole = "Student"; // STRICT DEFAULT LOGIN: STUDENT
+    let currentUserRole = "Student";
     let currentTheme = localStorage.getItem("ams_theme") || "light";
     let students = JSON.parse(localStorage.getItem("ams_aiml_students")) || AIML_A_STUDENTS;
     let selectedDate = new Date().toISOString().split("T")[0];
     let dailyAttendanceMarks = {};
     let dbInstance = null;
 
-    // --- IndexedDB Continuous Database Initializer ---
     function openDatabase() {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open("AMS_Continuous_DB", 1);
@@ -731,7 +305,6 @@
       });
     }
 
-    // App Initialization
     async function init() {
       applyTheme(currentTheme);
       document.getElementById("sessionDatePicker").value = selectedDate;
@@ -742,14 +315,12 @@
       await renderReports();
     }
 
-    // Loading Attendance For a Given Date
     async function loadSessionForDate(date) {
       const record = await dbGetSession(date);
       dailyAttendanceMarks = {};
       if (record && record.marks) {
         dailyAttendanceMarks = { ...record.marks };
       } else {
-        // Default to present or register status
         students.forEach(s => {
           dailyAttendanceMarks[s.roll] = s.initial || "P";
         });
@@ -762,7 +333,6 @@
       await loadSessionForDate(selectedDate);
     }
 
-    // Authentication & Role Handling
     function handleRoleClick() {
       if (currentUserRole === "Teacher") {
         currentUserRole = "Student";
@@ -844,7 +414,6 @@
       students.forEach(student => {
         const status = dailyAttendanceMarks[student.roll] || "P";
 
-        // Desktop Row
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${student.sno}</td>
@@ -870,7 +439,6 @@
         `;
         desktopTbody.appendChild(tr);
 
-        // Mobile Responsive Card
         const card = document.createElement("div");
         card.className = "student-mobile-card";
         card.innerHTML = `
@@ -947,7 +515,6 @@
       renderReports();
     }
 
-    // Reports View - IndexedDB Aggregation
     async function renderReports() {
       const allSessions = await dbGetAllSessions();
       const totalDays = allSessions.length;
@@ -1011,7 +578,6 @@
       document.getElementById("metricAvgAttendance").textContent = `${avg}%`;
     }
 
-    // Continuous 1-Year Preload Generator for Testing
     async function seedContinuousYearData() {
       if (!confirm("This will preload 180 continuous academic days of attendance into IndexedDB. Proceed?")) return;
       const startDate = new Date("2026-01-05");
@@ -1020,7 +586,7 @@
       for (let i = 0; count < 180; i++) {
         const d = new Date(startDate);
         d.setDate(startDate.getDate() + i);
-        if (d.getDay() !== 0 && d.getDay() !== 6) { // Weekdays only
+        if (d.getDay() !== 0 && d.getDay() !== 6) {
           const dateStr = d.toISOString().split("T")[0];
           const marks = {};
           students.forEach(s => {
@@ -1035,7 +601,6 @@
       await renderReports();
     }
 
-    // CSV Download Function (Day or Year Cumulative)
     async function exportToCSV(isCumulative) {
       const allSessions = await dbGetAllSessions();
       let csvContent = "data:text/csv;charset=utf-8,";
